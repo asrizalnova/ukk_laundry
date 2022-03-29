@@ -2,15 +2,77 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Outlet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use JWTAuth;
+use DB;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
-class userController extends Controller
+class UserController extends Controller
 {
+    public function getuser(){
+        // $detail = Outlet::get();
+        // return view('');
+        $data = User::all();
+        return view('user', compact('data'));
+    }
+
+      //tampilan tambah data
+    public function tambah(){
+        $user = DB::table('users')->get();
+        return view('tambah-user', compact('user')) ;
+    }
+
+     //tampilan edit
+     public function edit($id){
+        $user = User::find($id);
+        $outlet = Outlet::all();
+        return view('edit-user', compact('user', 'outlet')) ;
+        
+
+
+    }
+    //simpan data user
+    public function simpan(Request $request){
+        $validator = $request->validate([
+            'nama' => 'required|string|max:100',
+            'role' => 'required',
+            'username'=>'required',
+            ],
+            [
+                'nama.required' => 'Nama user tidak boleh kosong!',
+                'nama.max' => 'Nama user melebihi batas!',
+    
+                'role.required' => 'Role harus diisi!',
+    
+                'username.required' => 'username tidak boleh kosong!',
+
+              
+            ]
+        );
+
+        $user = User::create([
+            'nama'=>$request->get('nama'),
+            'role'=>$request->get('role'),
+            'username'=>$request->get('username'),
+          
+            ]);
+            return redirect()->route('tambah-user')->with('message-simpan','Data berhasil disimpan!');
+
+    }
+
+     //hapus data user
+     public function hapus($id){
+        $user = User::where('id',$id)->delete();
+        return redirect()->back()->with('message-hapus','Data berhasil dihapus!');
+    }
+
+    
+
     public function register(Request $request)
 	{
 		$validator = Validator::make($request->all(), [
@@ -42,8 +104,8 @@ class userController extends Controller
             'message' => 'berhasil menambahkan user baru',
             'data' => $data
            ]);
-        //return $this->response->successResponseData('Data user berhasil ditambahkan', $data);
-	}
+        
+    }
 
     // public function register(Request $request)
 	// {
@@ -107,11 +169,12 @@ class userController extends Controller
 		$user->save();
 
         $data = User::where('username','=', $request->username)->first();
-        return response()->json([
-            'success' => true,
-            'message' => 'Berhasil `menambahkan user baru!.',
-            'data' => $data
-        ]);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Berhasil `menambahkan user baru!.',
+        //     'data' => $data
+        // ]);
+        return redirect('/user');
     }
 
     public function login(Request $request)
@@ -175,19 +238,11 @@ class userController extends Controller
 
     public function logout(Request $request)
     {
-        if(JWTAuth::invalidate(JWTAuth::getToken())) {
-            return response()->json([
-                'success' => true,
-                'message' => 'You are logged out.',
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Logged out failed.',
-            ]);
+      
+           Auth::logout();
+           return view('login');
+          
         }
-    }
-
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -215,10 +270,11 @@ class userController extends Controller
 
         $user->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data user berhasil diubah!',
-        ]);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Data user berhasil diubah!',
+        // ]);
+        return redirect('/user');
     }
 
     public function delete($id)

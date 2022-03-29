@@ -5,12 +5,31 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Transaksi;
 use App\Models\DetailTransaksi;
+use App\Models\Outlet;
+use App\Models\Member;
+use App\Models\User;
+
+
 use Illuminate\Support\Facades\Validator;
 use DB;
 
 
 class TransaksiController extends Controller
 {
+    public function gettransaksi(){
+        $data = Transaksi::all();
+         return view('transaksi', ['transaksi' => $data]);
+     }
+      
+    //tampil tambah data transaksi
+    public function tambah(){
+        $outlet = Outlet::all();
+        $member = Member::all();
+        $user = User::all();
+        return view('tambah-transaksi', compact('outlet','member','user'));
+        
+        
+    }
     public function insert(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -25,7 +44,8 @@ class TransaksiController extends Controller
             'id_member' => 'required|numeric',
             'tgl' => 'required|date',
             'lama_pengerjaan' => 'required|numeric',
-            'id_user' => 'required|numeric'
+            'id_user' => 'required|numeric',
+
         ]);
 
         if($validator->fails()){
@@ -42,6 +62,9 @@ class TransaksiController extends Controller
         $transaksi -> id_member = $request -> id_member;
         $transaksi -> tgl = $request -> tgl;
         $transaksi -> batas_waktu = $batas_waktu;
+        //  date('Y-m-d', strtotime('+7 days', strtotime(date("Y-m-d"))))
+        // ;
+        // console.log($transaksi);
         $transaksi -> id_user = $request -> id_user;
         $transaksi->save();
 

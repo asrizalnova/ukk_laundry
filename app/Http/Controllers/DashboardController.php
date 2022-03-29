@@ -16,7 +16,7 @@ class DashboardController extends Controller
         $member = Member::all();
         $transaksi = Transaksi::where('status', '=', 'proses')->get();
 
-        return view('Dashboard', compact('outlet','paket','member','transaksi'));
+        return view('dashboard', compact('outlet','paket','member','transaksi'));
 
     }
 }

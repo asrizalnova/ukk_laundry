@@ -43,7 +43,7 @@ class loginController extends Controller
         //     'message' => 'authentication success',
         //     'data' => $data
         // ]);
-        return redirect('Dashboard');
+        return redirect('index');
     }
     
 }
